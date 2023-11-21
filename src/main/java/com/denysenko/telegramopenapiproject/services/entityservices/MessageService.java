@@ -3,7 +3,9 @@ package com.denysenko.telegramopenapiproject.services.entityservices;
 import com.denysenko.telegramopenapiproject.model.Message;
 import com.denysenko.telegramopenapiproject.model.MessageType;
 import com.denysenko.telegramopenapiproject.model.dto.AdminMessageDTO;
+import com.denysenko.telegramopenapiproject.repositories.AdminRepository;
 import com.denysenko.telegramopenapiproject.repositories.MessageRepository;
+import com.denysenko.telegramopenapiproject.security.jwt.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +21,7 @@ public class MessageService {
 
     private final MessageRepository messageRepository;
     private final BotUserService botUserService;
+    private final AdminRepository adminRepository;
 
     @Transactional
     public Message saveRequest(Long chatId, String text){
@@ -35,9 +38,10 @@ public class MessageService {
     }
 
     @Transactional
-    public Message saveAdminMessage(AdminMessageDTO adminMessageDTO){
+    public Message saveAdminMessage(AdminMessageDTO adminMessageDTO, AuthenticatedUser authenticatedUser){
+        var admin = adminRepository.findByUsername(authenticatedUser.getUsername()).get();
         var botUser = botUserService.getById(adminMessageDTO.botUserId());
-        var message = new Message(botUser, adminMessageDTO.message(), MessageType.RESPONSE);
+        var message = new Message(botUser, adminMessageDTO.message(), MessageType.RESPONSE, admin);
         return messageRepository.save(message);
     }
 

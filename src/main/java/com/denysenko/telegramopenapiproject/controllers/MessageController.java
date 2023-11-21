@@ -3,12 +3,15 @@ package com.denysenko.telegramopenapiproject.controllers;
 import com.denysenko.telegramopenapiproject.exceptions.InputValidationException;
 import com.denysenko.telegramopenapiproject.model.Message;
 import com.denysenko.telegramopenapiproject.model.dto.AdminMessageDTO;
+import com.denysenko.telegramopenapiproject.security.jwt.AuthenticatedUser;
+import com.denysenko.telegramopenapiproject.services.entityservices.BotUserService;
 import com.denysenko.telegramopenapiproject.services.entityservices.MessageService;
 import com.denysenko.telegramopenapiproject.services.TelegramService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +23,7 @@ public class MessageController {
 
     private final MessageService messageService;
     private final TelegramService telegramService;
+    private final BotUserService botUserService;
 
     @GetMapping("/last")
     public ResponseEntity<List<Message>> getLastNMessagesByBotUserId(
@@ -48,10 +52,13 @@ public class MessageController {
     }
 
     @PostMapping
-    public ResponseEntity sendMessage(@RequestBody @Valid AdminMessageDTO adminMessageDTO){
-        var message = messageService.saveAdminMessage(adminMessageDTO);
-        var chatId = message.getBotUser().getChatId();
-        telegramService.sendMessage(chatId, message.getText());
+    public ResponseEntity sendMessage(@RequestBody @Valid AdminMessageDTO adminMessageDTO,
+                                      @AuthenticationPrincipal AuthenticatedUser authenticatedUser){
+        var botUser = botUserService.getById(adminMessageDTO.botUserId());
+        if(!botUser.isActive())
+            throw new InputValidationException(String.format("User profile with id = %d is inactive", adminMessageDTO.botUserId()));
+        telegramService.sendMessage(botUser.getChatId(), adminMessageDTO.message());
+        messageService.saveAdminMessage(adminMessageDTO, authenticatedUser);
         return ResponseEntity.ok().build();
     }
 
