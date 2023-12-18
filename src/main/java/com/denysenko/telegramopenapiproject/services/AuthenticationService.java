@@ -1,6 +1,8 @@
 package com.denysenko.telegramopenapiproject.services;
 
+import com.denysenko.telegramopenapiproject.exceptions.AuthenticationException;
 import com.denysenko.telegramopenapiproject.exceptions.InputValidationException;
+import com.denysenko.telegramopenapiproject.exceptions.UserAlreadyExistsAuthenticationException;
 import com.denysenko.telegramopenapiproject.model.Admin;
 import com.denysenko.telegramopenapiproject.model.dto.CredentialsDTO;
 import com.denysenko.telegramopenapiproject.repositories.AdminRepository;
@@ -28,7 +30,7 @@ public class AuthenticationService {
     @Transactional
     public String register(CredentialsDTO credentialsDTO){
         if(adminRepository.existsByUsername(credentialsDTO.getUsername())){
-            throw new InputValidationException("Email is already taken");
+            throw new UserAlreadyExistsAuthenticationException("Email is already taken");
         }else {
             Admin admin = new Admin();
             admin.setUsername(credentialsDTO.getUsername());
@@ -48,6 +50,6 @@ public class AuthenticationService {
                             credentials.getPassword()
                     ));
             return jwtTokenUtils.createToken(credentials.getUsername());
-        }else throw new AccessDeniedException("User is not registered");
+        }else throw new AuthenticationException("User is not registered");
     }
 }

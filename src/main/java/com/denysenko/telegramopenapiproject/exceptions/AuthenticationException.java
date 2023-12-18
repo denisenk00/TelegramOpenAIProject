@@ -2,13 +2,16 @@ package com.denysenko.telegramopenapiproject.exceptions;
 
 import org.springframework.http.HttpStatus;
 
-import javax.naming.AuthenticationException;
 
-public class AuthorizationException extends AuthenticationException implements ApiException{
+public class AuthenticationException extends RuntimeException implements ApiException{
 
     private Exception cause;
 
-    public AuthorizationException(String explanation, Exception cause) {
+    public AuthenticationException(String explanation, Exception cause) {
+        super(explanation);
+    }
+
+    public AuthenticationException(String explanation) {
         super(explanation);
     }
 

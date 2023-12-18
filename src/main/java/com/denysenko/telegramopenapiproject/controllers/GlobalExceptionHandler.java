@@ -1,7 +1,7 @@
 package com.denysenko.telegramopenapiproject.controllers;
 
 import com.denysenko.telegramopenapiproject.exceptions.ApiException;
-import com.denysenko.telegramopenapiproject.exceptions.AuthorizationException;
+import com.denysenko.telegramopenapiproject.exceptions.AuthenticationException;
 import com.denysenko.telegramopenapiproject.exceptions.InputValidationException;
 import com.denysenko.telegramopenapiproject.exceptions.TelegramBotException;
 import lombok.extern.log4j.Log4j;
@@ -35,7 +35,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<Object>(errors, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler({AuthorizationException.class, InputValidationException.class})
+    @ExceptionHandler({AuthenticationException.class, InputValidationException.class})
     public ResponseEntity handleApiException(ApiException apiException){
         return new ResponseEntity(apiException.getMessage(), apiException.getStatus());
     }

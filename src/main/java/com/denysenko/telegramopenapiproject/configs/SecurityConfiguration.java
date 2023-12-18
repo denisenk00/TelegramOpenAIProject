@@ -3,6 +3,7 @@ package com.denysenko.telegramopenapiproject.configs;
 import com.denysenko.telegramopenapiproject.security.jwt.JwtAuthenticationFilter;
 import com.denysenko.telegramopenapiproject.services.SecurityUserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,6 +27,13 @@ public class SecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final SecurityUserService securityUserService;
 
+    private final String[] WHITELIST = {
+            "/v1/auth/**",
+            "/swagger/**",
+            "/actuator",
+            "/actuator/**"
+    };
+
     @Bean
     public PasswordEncoder bCryptPasswordEncoder(){
         return new BCryptPasswordEncoder(12);
@@ -35,7 +43,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
             http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers(WHITELIST).permitAll()
                         .anyRequest().authenticated()
 
                 )

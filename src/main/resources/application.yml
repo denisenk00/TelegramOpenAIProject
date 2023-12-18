@@ -23,7 +23,7 @@ server:
 spring:
   mvc:
     servlet:
-      path: /api/v1
+      path: /api/
   datasource:
     driver-class-name: org.postgresql.Driver
     url: ${DATABASE_URL}
@@ -38,5 +38,15 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-
+springdoc:
+  api-docs:
+    path: /swagger/apidocs
+  swagger-ui:
+    path: /swagger/ui
+  show-actuator: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
 
